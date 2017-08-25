@@ -27,6 +27,7 @@ import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -56,7 +57,6 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        //背压
         //Rxjava2的Observable不在支持背压，Flowable支持
 
         /**
@@ -186,6 +186,52 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onError(Throwable e) {
+
+            }
+        });
+
+        //Zip操作符(合并，按照最少的来)
+        Observable<String> ob1 = Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(ObservableEmitter<String> e) throws Exception {
+                e.onNext("A");
+                e.onNext("B");
+                e.onNext("C");
+                e.onNext("D");
+            }
+        }).subscribeOn(Schedulers.io());
+        Observable<Integer> ob2 = Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
+                e.onNext(1);
+                e.onNext(2);
+                e.onNext(3);
+            }
+        }).subscribeOn(Schedulers.io());
+        //合并
+        Observable.zip(ob1, ob2, new BiFunction<String, Integer, String>() {
+            @Override
+            public String apply(String s, Integer integer) throws Exception {
+                return s + integer;
+            }
+        }).subscribe(new Observer<String>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(String value) {
+                Log.i("MyLog", value);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
 
             }
         });

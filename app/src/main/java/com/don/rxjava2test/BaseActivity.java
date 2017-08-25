@@ -1,21 +1,12 @@
 package com.don.rxjava2test;
 
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.view.WindowManager;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 
 import com.don.rxjava2test.http.HttpResult;
 import com.don.rxjava2test.http.HttpResultFunc;
 import com.don.rxjava2test.http.MySchedulerTransformer;
 import com.don.rxjava2test.http.MySubscriber;
-
-import java.util.HashMap;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -58,8 +49,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseCall
      * 如果data中的实体为User，使用形如HttpResult<User>
      */
     public <T> void request(Observable<HttpResult<T>> observable, MySubscriber<HttpResult<T>> subscriber) {
-        observable
-                .map(new HttpResultFunc<T>())
+        observable.map(new HttpResultFunc<T>())
                 .compose(new MySchedulerTransformer<HttpResult<T>>())
                 .subscribeWith(subscriber);
     }
