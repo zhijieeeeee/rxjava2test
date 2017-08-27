@@ -68,36 +68,36 @@ public class MainActivity extends BaseActivity {
          Maybe/MaybeObserver
          */
 
-        Observable.interval(1, TimeUnit.MILLISECONDS)
-                .observeOn(Schedulers.newThread())
-                .subscribe(new Observer<Long>() {
-
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        md = d;
-                    }
-
-                    @Override
-                    public void onNext(Long value) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Log.i("MyLog", value + "");
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.i("MyLog", "onComplete");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i("MyLog", "onError");
-                    }
-
-                });
+//        Observable.interval(0, 1, TimeUnit.MILLISECONDS)
+//                .observeOn(Schedulers.newThread())
+//                .subscribe(new Observer<Long>() {
+//
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        md = d;
+//                    }
+//
+//                    @Override
+//                    public void onNext(Long value) {
+//                        try {
+//                            Thread.sleep(1000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                        Log.i("MyLog", value + "");
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        Log.i("MyLog", "onComplete");
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.i("MyLog", "onError");
+//                    }
+//
+//                });
 
         Observable.create(new ObservableOnSubscribe<String>() {
             @Override
@@ -138,6 +138,7 @@ public class MainActivity extends BaseActivity {
                     public void onSubscribe(Subscription s) {
                         //向上游请求的个数
                         subscription = s;
+                        //响应式拉取，告诉上游，下游要处理几个事件，上游就发送几个事件
                         s.request(2);
                     }
 
@@ -235,6 +236,26 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+
+        //相同线程，上游发完一个事件会等待下游处理完再发射下一个事件，所以不会出现MissingBackpressureException异常
+
+        //不同线程，上游发射的事件会存在一个“水缸”中，下游从“水缸”中取数据，如果下游取的
+        //速度赶不上上游存的速度，就会让“水缸”爆满，从而OOM
+
+//        Observable.create(new ObservableOnSubscribe<Integer>() {
+//            @Override
+//            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
+//                for (int i = 0; ; i++) {
+//                    e.onNext(i);
+//                }
+//            }
+//        }).subscribe(new Consumer<Integer>() {
+//            @Override
+//            public void accept(Integer integer) throws Exception {
+//                Log.i("MyLog", integer + "");
+//            }
+//        });
+
     }
 
     @Override
