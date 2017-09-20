@@ -52,7 +52,9 @@ public class MainActivity extends BaseActivity {
         btn_cancel_sub.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                md.dispose();
+                if (md != null) {
+                    md.dispose();
+                }
             }
         });
 
